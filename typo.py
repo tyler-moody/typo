@@ -88,7 +88,8 @@ class Application:
 
     def run(self, window):
         self.splash_screen(window)
-        self.typing_screen(window)
+        while True:
+            self.typing_screen(window)
 
 def main(stdscr):
     typo = Application(config_filename = "typo.conf")
