@@ -30,9 +30,7 @@ class Application:
         start = random.randint(0, len(lines) - text_size_lines)
         end = start + min(text_size_lines, len(lines) - start)
         logging.info(f"start {start} end {end}")
-        text = ''.join(lines[start:end])
-        logging.info(f"text is {text}")
-        return text
+        return lines[start:end]
 
     def typing_screen(self, window):
         window.clear()
@@ -43,38 +41,54 @@ class Application:
         mistyped = 3
         curses.init_pair(mistyped, curses.COLOR_RED, curses.COLOR_BLACK)
         text = self.get_text()
-        window.addstr(text, curses.color_pair(untyped))
+        logging.info(f"num lines is {len(text)}")
+        window.addstr(''.join(text), curses.color_pair(untyped))
         window.move(0,0)
 
         try:
-            line = 0
-            position = 0
+            current_line = 0
+            current_char = 0
             key = None
-            while position < len(text):
+            done = False
+            while not done:
+                logging.info(f"line {current_line} char {current_char}")
                 key = window.getkey()
                 logging.debug(f"key is '{key}'")
                 if key == 'KEY_BACKSPACE' or key == curses.KEY_BACKSPACE:
                     (y,x) = curses.getsyx()
                     if x > 0:
                         window.move(y,x-1)
-                        position -= 1
-                        window.addch(text[position], curses.color_pair(untyped))
+                        current_char -= 1
+                        window.addch(text[current_line][current_char], curses.color_pair(untyped))
                         window.move(y,x-1)
 
                 elif key == '\t':
                     logging.info('tab')
-                    while text[position] == ' ':
-                        position += 1
+                    while text[current_line][current_char] == ' ':
+                        current_char += 1
                         (y,x) = curses.getsyx()
                         window.move(y,x+1)
                         window.refresh()
                 else:
-                    if key == text[position]:
+                    if key == text[current_line][current_char]:
                         colors = typed
                     else:
                         colors = mistyped
                     window.addstr(key, curses.color_pair(colors))
-                    position += 1
+                    current_char += 1
+                    if key == '\n':
+                        logging.info("ENTER")
+                        current_line += 1
+                        current_char = 0
+                        if current_line >= len(text):
+                            done = True
+                            break
+                        window.refresh()
+                        while text[current_line][current_char] == ' ':
+                            current_char += 1
+                            (y,x) = curses.getsyx()
+                            window.move(y,x+1)
+                            window.refresh()
                 window.refresh()
         except KeyboardInterrupt:
             # clean up and exit
