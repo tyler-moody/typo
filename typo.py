@@ -42,22 +42,30 @@ class Application:
         curses.init_pair(typed, curses.COLOR_GREEN, curses.COLOR_BLACK)
         mistyped = 3
         curses.init_pair(mistyped, curses.COLOR_RED, curses.COLOR_BLACK)
-        expected = self.get_text()
-        window.addstr(expected, curses.color_pair(untyped))
+        text = self.get_text()
+        window.addstr(text, curses.color_pair(untyped))
         window.move(0,0)
 
         try:
+            line = 0
             position = 0
             key = None
-            while position < len(expected):
+            while position < len(text):
                 key = window.getkey()
                 logging.debug(f"key is '{key}'")
                 if key == 'KEY_BACKSPACE' or key == curses.KEY_BACKSPACE:
                     (y,x) = curses.getsyx()
                     window.move(y,x-1)
                     position -= 1
+                elif key == '\t':
+                    logging.info('tab')
+                    while text[position] == ' ':
+                        position += 1
+                        (y,x) = curses.getsyx()
+                        window.move(y,x+1)
+                        window.refresh()
                 else:
-                    if key == expected[position]:
+                    if key == text[position]:
                         colors = typed
                     else:
                         colors = mistyped
