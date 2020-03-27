@@ -30,7 +30,7 @@ class Application:
         start = random.randint(0, len(lines) - text_size_lines)
         end = start + min(text_size_lines, len(lines) - start)
         logging.info(f"start {start} end {end}")
-        return lines[start:end]
+        return (filename, lines[start:end], start, end)
 
     def typing_screen(self, window):
         window.clear()
@@ -40,7 +40,9 @@ class Application:
         curses.init_pair(typed, curses.COLOR_GREEN, curses.COLOR_BLACK)
         mistyped = 3
         curses.init_pair(mistyped, curses.COLOR_RED, curses.COLOR_BLACK)
-        text = self.get_text()
+        (filename, text, start, end) = self.get_text()
+        window.addstr(curses.LINES-1, 0, f"{filename}:{start}:{end}")
+        window.move(0,0)
         logging.info(f"num lines is {len(text)}")
         window.addstr(''.join(text), curses.color_pair(untyped))
         window.move(0,0)
