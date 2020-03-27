@@ -55,8 +55,12 @@ class Application:
                 logging.debug(f"key is '{key}'")
                 if key == 'KEY_BACKSPACE' or key == curses.KEY_BACKSPACE:
                     (y,x) = curses.getsyx()
-                    window.move(y,x-1)
-                    position -= 1
+                    if x > 0:
+                        window.move(y,x-1)
+                        position -= 1
+                        window.addch(text[position], curses.color_pair(untyped))
+                        window.move(y,x-1)
+
                 elif key == '\t':
                     logging.info('tab')
                     while text[position] == ' ':
