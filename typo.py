@@ -51,13 +51,19 @@ class Application:
             key = None
             while position < len(expected):
                 key = window.getkey()
-                if key == expected[position]:
-                    colors = typed
+                logging.debug(f"key is '{key}'")
+                if key == 'KEY_BACKSPACE' or key == curses.KEY_BACKSPACE:
+                    (y,x) = curses.getsyx()
+                    window.move(y,x-1)
+                    position -= 1
                 else:
-                    colors = mistyped
-                window.addstr(key, curses.color_pair(colors))
+                    if key == expected[position]:
+                        colors = typed
+                    else:
+                        colors = mistyped
+                    window.addstr(key, curses.color_pair(colors))
+                    position += 1
                 window.refresh()
-                position += 1
         except KeyboardInterrupt:
             # clean up and exit
             return
