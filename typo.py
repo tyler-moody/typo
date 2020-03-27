@@ -49,8 +49,7 @@ class Application:
             current_line = 0
             current_char = 0
             key = None
-            done = False
-            while not done:
+            while True:
                 logging.info(f"line {current_line} char {current_char}")
                 key = window.getkey()
                 logging.debug(f"key is '{key}'")
@@ -61,6 +60,9 @@ class Application:
                         current_char -= 1
                         window.addch(text[current_line][current_char], curses.color_pair(untyped))
                         window.move(y,x-1)
+                elif key == "KEY_NPAGE":
+                    logging.info("page down")
+                    return
 
                 elif key == '\t':
                     logging.info('tab')
@@ -81,8 +83,7 @@ class Application:
                         current_line += 1
                         current_char = 0
                         if current_line >= len(text):
-                            done = True
-                            break
+                            return
                         window.refresh()
                         while text[current_line][current_char] == ' ':
                             current_char += 1
@@ -96,7 +97,8 @@ class Application:
 
     def splash_screen(self, window):
         window.clear()
-        window.addstr("press CTRL-C to exit")
+        window.addstr("press CTRL-C to exit\n")
+        window.addstr("press PAGE DOWN to skip to the next text\n")
         window.refresh()
         time.sleep(1)
 
