@@ -74,7 +74,9 @@ class Application:
                         window.move(y,x+1)
                         window.refresh()
                 else:
-                    if key == text[current_line][current_char]:
+                    if current_char >= len(text[current_line]):
+                        colors = mistyped
+                    elif key == text[current_line][current_char]:
                         colors = typed
                     else:
                         colors = mistyped
