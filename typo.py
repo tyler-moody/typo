@@ -8,17 +8,26 @@ import time
 
 class Application:
     _config = None
+    _files = list()
     def __init__(self, config_filename):
         with open(config_filename) as f:
             self._config = json.loads(f.read())
+        self.make_files_list()
+
+    def make_files_list(self):
+        source_root = self._config["source_root"]
+        omit_dir_pattern = self._config["omit_dir_pattern"]
+        filetype_pattern = self._config["filetype_pattern"]
+        command = f"find {source_root} -not -path \"{omit_dir_pattern}\" -regextype posix-extended -regex \"{filetype_pattern}\""
+        logging.info(f"running command: {command}")
+        stream = os.popen(command)
+        for filename in stream:
+            self._files.append(filename.strip())
+        logging.info(f"found {len(self._files)} source files")
 
     def pick_file(self):
-        files = list()
-        with open("filenames") as f:
-            for line in f:
-                files.append(line)
-        n = random.randint(0, len(files))
-        return files[n].strip()
+        n = random.randint(0, len(self._files))
+        return self._files[n]
 
     def get_text(self):
         text_size_lines = self._config["text_size_lines"]
@@ -82,7 +91,7 @@ class Application:
                         colors = mistyped
                     window.addstr(key, curses.color_pair(colors))
                     current_char += 1
-                    if key == '\n':
+                    if key == '\n': 
                         logging.info("ENTER")
                         current_line += 1
                         current_char = 0
